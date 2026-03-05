@@ -12,6 +12,16 @@ const orderSchema = new mongoose.Schema(
     unique: true,
   },
 
+  invoiceStatus: {
+    type: String,
+    enum: ["Pending", "Generated"],
+    default: "Pending"
+  },
+
+  invoiceDate: {
+    type: Date
+  },
+
   prescription: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Prescription",
@@ -69,8 +79,5 @@ orderSchema.pre("save", function () {
   }
 
 });
-// ================================
-// EXPORT MODEL
-// ================================
 
 module.exports = mongoose.model("Order", orderSchema);

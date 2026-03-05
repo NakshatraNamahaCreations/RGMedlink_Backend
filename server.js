@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-
+const reportRoutes = require("./routes/reportRoutes");
 connectDB();
 
 const app = express();
@@ -20,7 +20,7 @@ app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 /* NEW ORDER ROUTE */
 
 app.use("/api/orders", require("./routes/orderRoutes"));
-
+app.use("/api/reports", reportRoutes);
 app.get("/", (req, res) => {
   res.send("RG Medlink API Running");
 });
