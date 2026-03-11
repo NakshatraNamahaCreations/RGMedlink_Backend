@@ -1,109 +1,81 @@
 const Medicine = require("../models/Medicine");
 
-
-
-
-
 /* ===============================
    CREATE MEDICINE
 ================================ */
 
 exports.createMedicine = async (req, res) => {
-
   try {
-
     const medicine = await Medicine.create(req.body);
-
     res.status(201).json(medicine);
-
   } catch (error) {
-
     res.status(500).json({ error: error.message });
-
   }
-
 };
-
-
-
-
 
 /* ===============================
    GET ALL MEDICINES
 ================================ */
 
 exports.getMedicines = async (req, res) => {
-
-  const medicines = await Medicine.find();
-
-  res.json(medicines);
-
+  try {
+    const medicines = await Medicine.find();
+    res.json(medicines);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
-
-
-
-
 
 /* ===============================
    GET SINGLE MEDICINE
 ================================ */
 
 exports.getMedicineById = async (req, res) => {
-
-  const medicine = await Medicine.findById(req.params.id);
-
-  res.json(medicine);
-
+  try {
+    const medicine = await Medicine.findById(req.params.id);
+    res.json(medicine);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
-
-
-
-
 
 /* ===============================
    UPDATE MEDICINE
 ================================ */
 
 exports.updateMedicine = async (req, res) => {
+  try {
+    const medicine = await Medicine.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
 
-  const medicine = await Medicine.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
-
-  res.json(medicine);
-
+    res.json(medicine);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
-
-
-
-
 
 /* ===============================
    DELETE MEDICINE
 ================================ */
 
 exports.deleteMedicine = async (req, res) => {
-
-  await Medicine.findByIdAndDelete(req.params.id);
-
-  res.json({ message: "Medicine deleted" });
-
+  try {
+    await Medicine.findByIdAndDelete(req.params.id);
+    res.json({ message: "Medicine deleted" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-
-
-
-
 /* ===============================
-   ADJUST STOCK
+   ADJUST STOCK + UPDATE DEMAND
 ================================ */
 
 exports.adjustStock = async (req, res) => {
-
   try {
-
     const { type, quantity } = req.body;
 
     const medicine = await Medicine.findById(req.params.id);
@@ -123,6 +95,13 @@ exports.adjustStock = async (req, res) => {
         return res.status(400).json({ message: "Insufficient stock" });
 
       medicine.stock -= qty;
+
+      /* ===============================
+         UPDATE DEMAND
+      =============================== */
+
+      medicine.demand30 += qty;
+      medicine.demand90 += qty;
     }
 
     await medicine.save();
@@ -133,9 +112,6 @@ exports.adjustStock = async (req, res) => {
     });
 
   } catch (error) {
-
     res.status(500).json({ error: error.message });
-
   }
-
 };

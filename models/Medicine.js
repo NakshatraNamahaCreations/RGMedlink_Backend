@@ -6,22 +6,19 @@ const medicineSchema = new mongoose.Schema(
   category: String,
   price: { type: Number, default: 0 },
 
-  stock: { type: Number, default: 0 },        // current stock
-  minStock: { type: Number, default: 10 },    // minimum stock
+  stock: { type: Number, default: 0 },
+  minStock: { type: Number, default: 10 },
   maxStock: { type: Number, default: 200 },
 
   expiry: Date,
 
-  demand30: { type: Number, default: 0 },     // 30 day usage
-  demand90: { type: Number, default: 0 },     // 90 day usage
+  demand30: { type: Number, default: 0 },
+  demand90: { type: Number, default: 0 },
 
   gstPct: { type: Number, default: 12 }
 },
 { timestamps: true }
 );
-
-
-
 
 
 /* ===============================
@@ -40,9 +37,6 @@ medicineSchema.virtual("status").get(function () {
 });
 
 
-
-
-
 /* ===============================
    AUTO REORDER QUANTITY
 ================================ */
@@ -54,9 +48,6 @@ medicineSchema.virtual("autoReorderQty").get(function () {
 
   return this.minStock + 20 - this.stock;
 });
-
-
-
 
 
 /* ===============================
@@ -72,9 +63,6 @@ medicineSchema.virtual("daysUntilStockout").get(function () {
 
   return Math.floor(this.stock / dailyUsage);
 });
-
-
-
 
 
 medicineSchema.set("toJSON", { virtuals: true });

@@ -1,25 +1,16 @@
 const Patient = require("../models/Patient");
 
-/* CREATE PATIENT */
+
+/* =====================================
+   CREATE PATIENT
+===================================== */
 
 exports.createPatient = async (req, res) => {
   try {
 
-    // find last patient
-    const lastPatient = await Patient
-      .findOne()
-      .sort({ createdAt: -1 });
+    const count = await Patient.countDocuments();
 
-    let patientId = "P001";
-
-    if (lastPatient && lastPatient.patientId) {
-
-      const lastNumber = parseInt(
-        lastPatient.patientId.replace("P", "")
-      );
-
-      patientId = "P" + String(lastNumber + 1).padStart(3, "0");
-    }
+    const patientId = "P" + String(count + 1).padStart(3, "0");
 
     const patient = await Patient.create({
       ...req.body,
@@ -39,7 +30,9 @@ exports.createPatient = async (req, res) => {
 };
 
 
-/* GET ALL PATIENTS */
+/* =====================================
+   GET ALL PATIENTS
+===================================== */
 
 exports.getPatients = async (req, res) => {
   try {
@@ -63,7 +56,9 @@ exports.getPatients = async (req, res) => {
 };
 
 
-/* GET PATIENT BY ID */
+/* =====================================
+   GET PATIENT BY ID
+===================================== */
 
 exports.getPatientById = async (req, res) => {
   try {
@@ -89,16 +84,18 @@ exports.getPatientById = async (req, res) => {
 };
 
 
-/* UPDATE PATIENT */
+/* =====================================
+   UPDATE PATIENT
+===================================== */
 
 exports.updatePatient = async (req, res) => {
   try {
 
     const patient = await Patient.findByIdAndUpdate(
-  req.params.id,
-  req.body,
-  { returnDocument: "after" }
-);
+      req.params.id,
+      req.body,
+      { new: true } // corrected option
+    );
 
     if (!patient) {
       return res.status(404).json({
@@ -122,7 +119,9 @@ exports.updatePatient = async (req, res) => {
 };
 
 
-/* DELETE PATIENT */
+/* =====================================
+   DELETE PATIENT
+===================================== */
 
 exports.deletePatient = async (req, res) => {
   try {

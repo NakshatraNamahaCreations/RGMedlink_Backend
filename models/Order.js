@@ -6,6 +6,7 @@ const orderSchema = new mongoose.Schema(
     type: String,
     unique: true,
   },
+  
 
   invoiceNumber: {
     type: String,
