@@ -19,22 +19,27 @@ exports.getDashboardSummary = async (req, res) => {
        MEDICINE DATA
     ============================== */
 
-    const medicines = await Medicine.find();
+   const medicines = await Medicine
+  .find()
+  .sort({ createdAt: -1 });
 
     const totalSKUs = medicines.length;
 
-    const criticalStock = medicines.filter(
-      (m) => m.stock <= m.minStock * 0.5
-    ).length;
+    const outOfStock = medicines.filter(
+  (m) => m.stock === 0
+).length;
 
-    const lowStockItems = medicines.filter(
-      (m) => m.stock <= m.minStock && m.stock > m.minStock * 0.5
-    ).length;
+const criticalStock = medicines.filter(
+  (m) => m.stock > 0 && m.stock <= m.minStock * 0.5
+).length;
 
+const lowStockItems = medicines.filter(
+  (m) => m.stock > m.minStock * 0.5 && m.stock <= m.minStock
+).length;
 
 
     /* =============================
-       REORDER COST CALCULATION
+       REORDER COST CALCULATIONa
     ============================== */
 
     const reorderCost = medicines.reduce((sum, m) => {
@@ -119,7 +124,7 @@ exports.getDashboardSummary = async (req, res) => {
       totalOrders,
       pendingPres,
       totalRevenue: totalRevenue[0]?.total || 0,
-
+       outOfStock,  
       /* Inventory dashboard */
       totalSKUs,
       criticalStock,
