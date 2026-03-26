@@ -1,7 +1,7 @@
 const Prescription = require("../models/Prescription");
 const Medicine = require("../models/Medicine");
 const Order = require("../models/Order");
-
+const PatientDetails = require("../models/PatientDetails");
 
 // ============================
 // CREATE PRESCRIPTION
@@ -160,7 +160,25 @@ exports.updatePrescription = async (req, res) => {
   }
 };
 
+exports.cleanUnusedPrescriptions = async (req, res) => {
+  try {
 
+    const result = await Prescription.deleteMany({
+      $or: [
+        { payStatus: "Unpaid" },
+        { patient: null }
+      ]
+    });
+
+    res.json({
+      message: "Unused prescriptions deleted",
+      deletedCount: result.deletedCount
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // ============================
 // DELETE PRESCRIPTION
@@ -188,52 +206,64 @@ exports.deletePrescription = async (req, res) => {
 // ALSO CREATE ORDER
 // ============================
 
-exports.markPaid = async (req, res) => {
+exports.processPayment = async (req, res) => {
   try {
 
     const rx = await Prescription.findById(req.params.id);
 
-    if (!rx)
+    if (!rx) {
       return res.status(404).json({ message: "Prescription not found" });
+    }
 
-    // Prevent double payment
+    // 🔒 Prevent duplicate payment
     if (rx.payStatus === "Paid") {
       return res.status(400).json({ message: "Already paid" });
     }
 
-    // Update Prescription payment
+    // ✅ Step 1: Mark as paid
     rx.payStatus = "Paid";
     rx.orderStatus = "Processing";
     await rx.save();
 
-    // Prevent duplicate order
+    // 🔒 Prevent duplicate order
     let existingOrder = await Order.findOne({ prescription: rx._id });
 
     if (existingOrder) {
       return res.json({
-        message: "Payment already processed",
+        message: "Order already exists",
         prescription: rx,
         order: existingOrder
       });
     }
 
-    // Create order
-    const order = await Order.create({
-      prescription: rx._id,
-      patient: rx.patient,
-      totalAmount: rx.total,
-      paymentStatus: "Paid",
-      orderStatus: "Processing",
-    });
+    // ✅ Step 2: Create order
+const patientData = await PatientDetails.findById(rx.patient);
 
+const order = await Order.create({
+  prescription: rx._id,
+  patient: rx.patient,
+  totalAmount: rx.total,
+  paymentStatus: "Paid",
+  orderStatus: "Processing",
+
+  // ✅ REAL SNAPSHOT
+  patientDetails: {
+  name: patientData.name,
+  primaryPhone: patientData.primaryPhone,
+  secondaryPhone: patientData.secondaryPhone || "",
+  gender: patientData.gender,
+  orderingFor: patientData.orderingFor
+},
+  addressDetails: {} // you can add later
+});
     res.json({
-      message: "Payment successful. Order created.",
+      message: "Payment processed & order created",
       prescription: rx,
       order
     });
 
   } catch (err) {
-    console.error("MARK PAID ERROR:", err);
+    console.error("PROCESS PAYMENT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };

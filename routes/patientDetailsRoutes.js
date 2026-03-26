@@ -6,10 +6,16 @@ const {
   getPatientDetails,
   getPatientDetailsById,
   updatePatientDetails,
+  getAllPatientDetails,
   deletePatientDetails
 } = require("../controllers/patientDetailsController");
 
 router.post("/create", createPatientDetails);
+
+// ✅ MOVE THIS UP
+router.get("/all", getAllPatientDetails);
+
+// Existing routes
 router.get("/", getPatientDetails);
 router.get("/:id", getPatientDetailsById);
 router.put("/:id", updatePatientDetails);

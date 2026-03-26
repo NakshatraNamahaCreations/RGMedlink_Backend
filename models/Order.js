@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema(
-{
+const orderSchema = new mongoose.Schema({
   orderId: {
     type: String,
     unique: true,
   },
-  
 
   invoiceNumber: {
     type: String,
@@ -19,8 +17,12 @@ const orderSchema = new mongoose.Schema(
     default: "Pending"
   },
 
-  invoiceDate: {
-    type: Date
+  invoiceDate: Date,
+
+  userId: {
+    type: String,
+    required: true,
+    index: true
   },
 
   prescription: {
@@ -31,7 +33,23 @@ const orderSchema = new mongoose.Schema(
 
   patient: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Patient",
+    ref: "PatientDetails",
+  },
+
+  // ✅ FIXED SNAPSHOT
+  patientDetails: {
+    name: String,
+    phone: String,
+    secondaryPhone: String,   // ✅ FIX
+    gender: String,
+    orderingFor: String       // ✅ FIX
+  },
+
+  addressDetails: {
+    fullAddress: String,
+    city: String,
+    state: String,
+    pincode: String
   },
 
   totalAmount: {
@@ -56,21 +74,13 @@ const orderSchema = new mongoose.Schema(
     default: "",
   },
 
-  deliveredAt: {
-    type: Date,
-  },
+  deliveredAt: Date
 
-},
-{ timestamps: true }
-);
+}, { timestamps: true });
 
 
-// ================================
-// AUTO GENERATE ORDER + INVOICE
-// ================================
-
+// ✅ AUTO GENERATE IDs
 orderSchema.pre("save", function () {
-
   if (!this.orderId) {
     this.orderId = "ORD-" + Date.now();
   }
@@ -78,7 +88,6 @@ orderSchema.pre("save", function () {
   if (!this.invoiceNumber) {
     this.invoiceNumber = "INV-" + Date.now();
   }
-
 });
 
 module.exports = mongoose.model("Order", orderSchema);

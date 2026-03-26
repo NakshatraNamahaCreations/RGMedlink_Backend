@@ -8,6 +8,7 @@ const {
   getUserAddresses,
   updateAddress,
   deleteAddress,
+  getDefaultAddress
 } = require("../controllers/addressController");
 
 /* DELETE SINGLE */
@@ -19,6 +20,8 @@ router.post("/save", saveAddress);
 /* GET USER ADDRESSES */
 router.get("/:userId", getUserAddresses);
 
+
+router.get("/default/:userId", getDefaultAddress);
 /* UPDATE */
 router.put("/update/:id", updateAddress);
 

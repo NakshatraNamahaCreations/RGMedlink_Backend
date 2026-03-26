@@ -4,20 +4,33 @@ const patientDetailsSchema = new mongoose.Schema(
 {
   userId: {
     type: String,
-    required: true
+    required: true,
+    index: true
   },
 
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
 
-  age: {
-    type: Number
-  },
+  age: Number,
 
   email: {
-    type: String
+    type: String,
+    trim: true,
+    lowercase: true
+  },
+
+  primaryPhone: {
+    type: String,
+    required: true,
+    match: [/^[0-9]{10}$/, "Invalid phone number"]
+  },
+
+  secondaryPhone: {
+    type: String,
+    default: ""
   },
 
   gender: {
@@ -29,6 +42,12 @@ const patientDetailsSchema = new mongoose.Schema(
     type: String,
     enum: ["myself", "someone"],
     default: "myself"
+  },
+
+  // ⭐ NEW
+  isDefault: {
+    type: Boolean,
+    default: false
   }
 
 },
