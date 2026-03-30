@@ -16,6 +16,9 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const authRoutes = require("./routes/authRoutes");
 
+const uploadRoutes = require("./routes/uploadRoutes");
+
+
 connectDB();
 
 const app = express();
@@ -44,6 +47,7 @@ app.use("/api/address", addressRoutes);
 app.use("/api/patient-details", patientDetailsRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/", (req, res) => {
   res.send("RG Medlink API Running");
